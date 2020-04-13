@@ -15,7 +15,7 @@ class Epoch_raw:
         self.tmin = tmin
         self.tmax = tmax
     
-    def Epochs_raw(path, event, fmin, fmax, event_id, tmin, tmax):
+    def Epochs_raw(path, event, event_id, fmin=4, fmax=35, tmin=-1, tmax=4):
         raw = read_raw_edf(path, stim_channel=False, preload=True)
         event = pd.read_csv(event, header=None)
         events = event.values
