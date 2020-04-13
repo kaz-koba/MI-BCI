@@ -1,31 +1,15 @@
-# Authors: Clemens Brunner <clemens.brunner@gmail.com>
-#
-# License: BSD (3-clause)
-
 import configparser
 
 import numpy as np
 import matplotlib.pyplot as plt
 import mne
-import pandas as pd
-from mne.io import concatenate_raws, read_raw_edf
-from mne import Epochs, pick_types, events_from_annotations, concatenate_epochs
+from mne import concatenate_epochs
 from mne.time_frequency import tfr_multitaper
 from mne.stats import permutation_cluster_1samp_test as pcluster_test
 from mne.viz.utils import center_cmap
 
 from pathfile import PATHfile
-
-def epoch_raw(path, event):
-    raw = read_raw_edf(path, stim_channel=False, preload=True)
-    event = pd.read_csv(event, header=None)
-    events = event.values
-    picks = mne.pick_channels(raw.info["ch_names"], ["C3", "Cz", "C4"])
-    epochs = Epochs(raw, events, event_id, tmin - 0.5, tmax + 0.5, proj=True, picks=picks, 
-                    baseline=None, preload=True, event_repeated='drop')
-    del raw
-
-    return epochs
+from epoch_raw import Epoch_raw
 
 # load and preprocess data ####################################################
 inifile = configparser.ConfigParser()
@@ -54,7 +38,8 @@ elif task_num == "3":
 
 epochs = []
 for path, event in path_b:
-    epochs.append(epoch_raw(path, event))    
+    epochs.append(Epoch_raw.Epochs_raw(path, event, event_id = event_id, tmin=tmin, tmax=tmax, 
+                    channel_names=["Cz", "C3", "C4"]))    
 
 epochs = concatenate_epochs(epochs)
 
@@ -105,4 +90,8 @@ for event in event_id:
     fig.colorbar(axes[0].images[-1], cax=axes[-1])
     fig.suptitle("ERDS ({})".format(event))
     fig.show()
-    fig.savefig('figure/kobayashi/ERDsmap({}-{}-{}-{}).png' .format(name, day, trial, event))
+    if path == "day":
+        trial_name = day
+    else:
+        trial_name = trial
+    fig.savefig('figure/ERDsmap({}-{}-{}-{}).png' .format(name, day, trial_name, event))

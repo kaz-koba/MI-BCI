@@ -1,9 +1,11 @@
+import mne
 from mne import Epochs
 from mne.io import read_raw_edf
 import pandas as pd
 
 class Epoch_raw:
-    def __init__(self, path, event, event_id, fmin=4, fmax=35, tmin=-1, tmax=4):
+    def __init__(self, path, event, event_id, fmin=2, fmax=45, tmin=-1, tmax=4,
+                channel_names = ["FCz", "FC1", "FC2", "FC3", "FC4", "Cz", "C1", "C2", "C3", "C4"]):
         #mustparameter
         self.path = path
         self.event = event
@@ -14,16 +16,19 @@ class Epoch_raw:
         #epochtime
         self.tmin = tmin
         self.tmax = tmax
+        self.channel_names = channel_names
     
-    def Epochs_raw(path, event, event_id, fmin=4, fmax=35, tmin=-1, tmax=4):
+    def Epochs_raw(path, event, event_id, fmin = 2, fmax = 45, tmin = -1, tmax = 4, 
+                    channel_names = ["FCz", "FC1", "FC2", "FC3", "FC4", "Cz", "C1", "C2", "C3", "C4"]):
         raw = read_raw_edf(path, stim_channel=False, preload=True)
         event = pd.read_csv(event, header=None)
         events = event.values
+        picks = mne.pick_channels(raw.info["ch_names"], channel_names)
         raw.filter(fmin, fmax, n_jobs=1,  
                 l_trans_bandwidth=1,  
                 h_trans_bandwidth=1)
         epochs = Epochs(raw, events, event_id, tmin, tmax, proj=True, baseline=None, preload=True, 
-                        event_repeated='drop')
+                        picks = picks, event_repeated='drop')
         del raw
 
         return epochs

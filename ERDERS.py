@@ -1,12 +1,10 @@
 import configparser
 
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 
 import mne
-from mne import Epochs, pick_types, events_from_annotations, concatenate_epochs
-from mne.io import read_raw_edf, read_raw_gdf
+from mne import concatenate_epochs
 
 from sklearn.metrics import confusion_matrix, classification_report
 import seaborn as sns
@@ -14,26 +12,14 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 
 from pathfile import PATHfile
-
-def epoch_raw(path, event):
-    raw = read_raw_edf(path, stim_channel=True, preload=True)
-    event = pd.read_csv(event, header=None)
-    events = event.values
-    raw.filter(fmin, fmax, n_jobs=1,  
-            l_trans_bandwidth=1,  
-            h_trans_bandwidth=1)
-    epochs = Epochs(raw, events, event_id, tmin, tmax, proj=True, baseline=None, preload=True, event_repeated='drop')
-    del raw
-
-    return epochs
+from epoch_raw import Epoch_raw
 
 if __name__ == "__main__":
     # set epoching parameters
     tmin, tmax =-2., 5.
-    event_id = [1, 2]
     event_map = {0:"Left", 1:'Right', 2:'Another'}
     sample_freq = 512
-    reg_sec = 2
+    reg_sec = 1
     inifile = configparser.ConfigParser()
     inifile.read('./parameter.ini', 'UTF-8')
     exec_time = datetime.now().strftime('%Y%m%d_%H:%M:%S')
@@ -42,18 +28,25 @@ if __name__ == "__main__":
     day = inifile.get('setting', 'day')
     name = inifile.get('setting', 'name')
     trial = inifile.get('setting', 'trial')
-    fmin = inifile.get('setting', 'fmin')
-    fmax = inifile.get('setting', 'fmax')
+    task_num = inifile.get('setting', 'task_num')
     ch_list = inifile.get('setting', 'ch_list')
 
-    path_b = [(PATHfile.edfpath(name, day, trial), PATHfile.eventpath(name, day, trial))]
-            #(PATHfile.edfpath(name, day, "2"), PATHfile.eventpath(name, day, "2")),
-            #(PATHfile.edfpath(name, day, "3"), PATHfile.eventpath(name, day, "3"))]
+    if task_num == "2":
+        event_id = [1, 2]
+    elif task_num == "3":
+        event_id = [1, 2, 3]
+
+    if path == "day":
+        path_b = [(PATHfile.edfpath(name, day, "1"), PATHfile.eventpath(name, day, "1")),
+            (PATHfile.edfpath(name, day, "2"), PATHfile.eventpath(name, day, "2")),
+            (PATHfile.edfpath(name, day, "3"), PATHfile.eventpath(name, day, "3"))]
+    elif path == "trial":
+        path_b = [(PATHfile.edfpath(name, day, trial), PATHfile.eventpath(name, day, trial))]
 
     epochs = []
     # (re)load the data to save memory
     for path, event in path_b:
-        epochs.append(epoch_raw(path, event))
+        epochs.append(Epoch_raw.Epochs_raw(path, event, event_id, tmin=tmin, tmax=tmax))
     epochs = concatenate_epochs(epochs)
     ch_names = epochs.ch_names
     print(ch_names)
@@ -84,9 +77,6 @@ if __name__ == "__main__":
         erd.append((average[i] - ref[i]) / ref[i] * 100)
 
     time = np.arange(len(average[0][0])) / sample_freq
-
-
-
     fig, ax = plt.subplots(3, 1, figsize=(10, 8), sharex=True)
     color_num = 0
     cmap = plt.get_cmap("tab10")

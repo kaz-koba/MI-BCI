@@ -19,9 +19,7 @@ import matplotlib.pyplot as plt
 
 from pathfile import PATHfile
 from epoch_raw import Epoch_raw
-
-import datetime
-dt_now = datetime.datetime.now()
+import pickle_make
 
 def objective(trial):
     C = trial.suggest_loguniform('C', 1e-4, 1e4)
@@ -81,14 +79,17 @@ iter_freqs = [
 ]
 
 #parameters
-svm = SVC(C=float(inifile.get('setting', 'C')), gamma = float(inifile.get('setting', 'gamma')), kernel='rbf', cache_size=100)
+svm = SVC(C=float(inifile.get('setting', 'C')), gamma = float(inifile.get('setting', 'gamma')), kernel='rbf', 
+        cache_size=100)
 cv = ShuffleSplit(10, test_size=0.2, random_state=42)
 
 # set epoching parameters
 tmin, tmax =-1., 4.
 
 acc_map = list()
-
+csp_map = list()
+vec_map = list()
+sca_map = list()
 for band, fmin, fmax, mag in iter_freqs:
     epochs = []
     scaler = preprocessing.StandardScaler()
@@ -97,22 +98,19 @@ for band, fmin, fmax, mag in iter_freqs:
             norm_trace=False, transform_into='average_power')
     # (re)load the data to save memory
     for path, event in path_b:
-        epochs.append(Epoch_raw.Epochs_raw(path, event, event_id, fmin, fmax))
+        epochs.append(Epoch_raw.Epochs_raw(path, event, event_id, fmin, fmax, tmin, tmax))
     epochs = concatenate_epochs(epochs)
     labels = epochs.events[:, -1]
     # remove evoked response
     #epochs.subtract_evoked()
-
     epochs_train = epochs.copy().crop(tmin=0.25, tmax=1.25)
     epochs_data_train = epochs_train.get_data()
-    print(epochs_data_train.shape)
-    print(epochs_data_train[0])
-    #x = csp.fit_transform(epochs_data_train, labels)
-    csp.fit(epochs_data_train, labels)
-    x = csp.transform(epochs_data_train)
-    print(x[0])
+    x = csp.fit_transform(epochs_data_train, labels)
+    csp_map.append(csp)
     x = vectorizer.fit_transform(x, labels)
+    vec_map.append(vectorizer)
     x = scaler.fit_transform(x, labels)
+    sca_map.append(scaler)
     x *= mag
     data40 = np.hstack((data40, x))
     scores = cross_val_score(svm, x, labels, cv=cv, n_jobs=1)
@@ -123,7 +121,6 @@ for freq_name, fmin, fmax, acc in acc_map:
     print("{}({}~{}) Classification accuracy: {}" .format(freq_name, fmin, fmax, np.mean(acc)))
 
 print(data40.shape)
-#svm.fit(data40, labels)
 study = optuna.create_study(direction='maximize')
 study.optimize(objective, n_trials=100)
 svm = SVC(C=study.best_trial.params['C'], gamma = study.best_trial.params['gamma'], kernel='rbf', cache_size=100)
@@ -152,5 +149,11 @@ if path == "day":
     trial_name = day
 else:
     trial_name = trial
-plt.savefig('figure/confusion_matrix_{}_{}_{}.png' .format(name, day, trial))
+plt.savefig('figure/confusion_matrix_{}_{}_{}.png' .format(name, day, trial_name))
 plt.show()
+
+svm.fit(data40, labels)
+pickle_make.maker("csp_map.pickle", csp_map)
+pickle_make.maker("svm.pickle", svm)
+pickle_make.maker("vec_map.pickle", vec_map)
+pickle_make.maker("sca_map.pickle", sca_map)
