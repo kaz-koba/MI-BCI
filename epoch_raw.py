@@ -3,7 +3,7 @@ from mne.io import read_raw_edf
 import pandas as pd
 
 class Epoch_raw:
-    def __init__(self, path, event, fmin=4, fmax=35, event_id, tmin=-1, tmax=4):
+    def __init__(self, path, event, event_id, fmin=4, fmax=35, tmin=-1, tmax=4):
         #mustparameter
         self.path = path
         self.event = event

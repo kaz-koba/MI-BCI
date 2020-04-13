@@ -95,7 +95,7 @@ for band, fmin, fmax, mag in iter_freqs:
             norm_trace=False, transform_into='average_power')
     # (re)load the data to save memory
     for path, event in path_b:
-        epochs.append(Epoch_raw.Epochs_raw(path, event, fmin, fmax, event_id))
+        epochs.append(Epoch_raw.Epochs_raw(path, event, event_id, fmin, fmax))
     epochs = concatenate_epochs(epochs)
     labels = epochs.events[:, -1]
     # remove evoked response
