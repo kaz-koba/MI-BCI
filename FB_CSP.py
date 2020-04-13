@@ -19,6 +19,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 from pathfile import PATHfile
+from epoch_raw import Epoch_raw
 
 def objective(trial):
     C = trial.suggest_loguniform('C', 1e-4, 1e4)
@@ -31,18 +32,6 @@ def objective(trial):
     print("Classification accuracy: {}" .format(np.mean(scores)))
 
     return np.mean(scores)
-
-def epoch_raw(path, event):
-    raw = read_raw_edf(path, stim_channel=False, preload=True)
-    event = pd.read_csv(event, header=None)
-    events = event.values
-    raw.filter(fmin, fmax, n_jobs=1,  
-            l_trans_bandwidth=1,  
-            h_trans_bandwidth=1)
-    epochs = Epochs(raw, events, event_id, tmin, tmax, proj=True, baseline=None, preload=True, event_repeated='drop')
-    del raw
-
-    return epochs
 
 # set epoching parameters
 tmin, tmax =-1., 4.
@@ -102,10 +91,11 @@ for band, fmin, fmax, mag in iter_freqs:
     epochs = []
     scaler = preprocessing.StandardScaler()
     vectorizer = Vectorizer()
-    csp = CSP(n_components = int(inifile.get('setting', 'n_components')), reg=None, log=True, norm_trace=False, transform_into='average_power')
+    csp = CSP(n_components = int(inifile.get('setting', 'n_components')), reg=None, log=True, 
+            norm_trace=False, transform_into='average_power')
     # (re)load the data to save memory
     for path, event in path_b:
-        epochs.append(epoch_raw(path, event))
+        epochs.append(Epoch_raw.Epochs_raw(path, event, fmin, fmax, event_id))
     epochs = concatenate_epochs(epochs)
     labels = epochs.events[:, -1]
     # remove evoked response
