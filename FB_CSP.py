@@ -9,8 +9,7 @@ from sklearn.svm import SVC
 from sklearn.model_selection import ShuffleSplit, cross_val_score, StratifiedKFold
 
 import mne
-from mne import Epochs, pick_types, events_from_annotations, concatenate_epochs
-from mne.io import read_raw_edf, read_raw_gdf
+from mne import concatenate_epochs
 
 from mne.decoding import CSP , Vectorizer
 from sklearn import preprocessing
@@ -20,6 +19,9 @@ import matplotlib.pyplot as plt
 
 from pathfile import PATHfile
 from epoch_raw import Epoch_raw
+
+import datetime
+dt_now = datetime.datetime.now()
 
 def objective(trial):
     C = trial.suggest_loguniform('C', 1e-4, 1e4)
@@ -146,5 +148,9 @@ cm = confusion_matrix(preds, labels)
 cm_normalized = cm.astype(float) / cm.sum(axis=1)[:, np.newaxis]
 cm_normalized = pd.DataFrame(data=cm_normalized, index=target_names, columns=target_names)
 sns.heatmap(cm_normalized, annot=True, cmap='Blues', square=True)
-plt.savefig('figure/confusion_matrix_{}_{}_2.png' .format(name, day))
+if path = "day":
+    trial_name = day
+else:
+    trial_name = trial
+plt.savefig('figure/confusion_matrix_{}_{}_{}.png' .format(name, day, trial))
 plt.show()
