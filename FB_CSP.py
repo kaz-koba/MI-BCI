@@ -148,7 +148,7 @@ cm = confusion_matrix(preds, labels)
 cm_normalized = cm.astype(float) / cm.sum(axis=1)[:, np.newaxis]
 cm_normalized = pd.DataFrame(data=cm_normalized, index=target_names, columns=target_names)
 sns.heatmap(cm_normalized, annot=True, cmap='Blues', square=True)
-if path = "day":
+if path == "day":
     trial_name = day
 else:
     trial_name = trial
