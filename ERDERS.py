@@ -48,7 +48,7 @@ if __name__ == "__main__":
     epochs = []
     # (re)load the data to save memory
     for path, event in path_b:
-        epochs.append(Epoch_raw.Epochs_raw(path, event, event_id, tmin=tmin, tmax=tmax))
+        epochs.append(Epoch_raw.Epochs_raw(path, event, event_id, fmin, fmax, tmin, tmax))
     epochs = concatenate_epochs(epochs)
     ch_names = epochs.ch_names
     print(ch_names)
