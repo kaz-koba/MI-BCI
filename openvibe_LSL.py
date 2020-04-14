@@ -10,15 +10,13 @@ signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 import pickle
 with open('csp_map.pickle', mode='rb') as fp:
-    csp_map = pickle.load(fp)
-with open('svm.pickle', mode='rb') as fp:
-    svm = pickle.load(fp)
-with open('vec.pickle', mode='rb') as fp:
-    vec_map = pickle.load(fp)
-with open('sca.pickle', mode='rb') as fp:
-    sca_map = pickle.load(fp)
-with open('freqs.pickle', mode='rb') as fp:
-    iter_freqs = pickle.load(fp)
+    pickle_map = pickle.load(fp)
+csp_map = pickle_map[0]
+svm = pickle_map[1]
+vec_map = pickle_map[2]
+sca_map = pickle_map[3]
+iter_freqs = pickle_map[4]
+
 
 stim = 0
 

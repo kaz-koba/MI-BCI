@@ -5,25 +5,14 @@ from scipy import stats
 import matplotlib.pyplot as plt
 
 import mne
-from mne import Epochs, concatenate_epochs
-from mne.io import read_raw_edf
+from mne import concatenate_epochs
 from mne.datasets import sample
 from mne.stats import bonferroni_correction, fdr_correction
 
 from pathfile import PATHfile
+from epoch_raw import Epoch_raw
 
 print(__doc__)
-
-def epoch_raw(path, event):
-    raw = read_raw_edf(path, stim_channel=False, preload=True)
-    event = pd.read_csv(event, header=None)
-    events = event.values
-    picks = mne.pick_types(raw.info,  include=include, eeg=True, exclude='bads')
-    epochs = Epochs(raw, events, event_id, tmin - 0.5, tmax + 0.5, proj=True, picks=picks, 
-                    baseline=None, preload=True, event_repeated='drop')
-    del raw
-
-    return epochs
 
 tmin, tmax =-1., 4.
 event_id = [1] #1-left 2-right 3-another
@@ -33,10 +22,15 @@ inifile.read('./parameter.ini', 'UTF-8')
 day = inifile.get('setting', 'day')
 name = inifile.get('setting', 'name')
 trial = inifile.get('setting', 'trial')
+task_num = inifile.get('setting', 'task_num')
+path = inifile.get('setting', 'path')
 
-path_b = [(PATHfile.edfpath(name, day, "1"), PATHfile.eventpath(name, day, "1"))]
-#        (PATHfile.edfpath(name, day, "2"), PATHfile.eventpath(name, day, "2")),
-#       (PATHfile.edfpath(name, day, "3"), PATHfile.eventpath(name, day, "3"))]
+if path == "day":
+    path_b = [(PATHfile.edfpath(name, day, "1"), PATHfile.eventpath(name, day, "1")),
+        (PATHfile.edfpath(name, day, "2"), PATHfile.eventpath(name, day, "2")),
+        (PATHfile.edfpath(name, day, "3"), PATHfile.eventpath(name, day, "3"))]
+elif path == "trial":
+    path_b = [(PATHfile.edfpath(name, day, trial), PATHfile.eventpath(name, day, trial))]
 
 #   Setup for reading the raw data
 channel = 'C3'
@@ -44,7 +38,7 @@ include = [channel]
 
 epochs = []
 for path, event in path_b:
-    epochs.append(epoch_raw(path, event))    
+    epochs.append(Epoch_raw.Epochs_raw(path, event, event_id, tmin = tmin, tmax = tmax, channel_names=include))    
 
 epochs = concatenate_epochs(epochs)
 

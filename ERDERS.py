@@ -29,7 +29,7 @@ if __name__ == "__main__":
     name = inifile.get('setting', 'name')
     trial = inifile.get('setting', 'trial')
     task_num = inifile.get('setting', 'task_num')
-    ch_list = inifile.get('setting', 'ch_list')
+    ch_list = ["Cz", "C3", "C4"]
 
     if task_num == "2":
         event_id = [1, 2]
