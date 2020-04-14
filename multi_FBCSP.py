@@ -19,6 +19,8 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 from pathfile import PATHfile
+from epoch_raw import Epoch_raw
+import pickle_make
 
 def objective(trial):
     C = trial.suggest_loguniform('C', 1e-4, 1e4)
@@ -31,18 +33,6 @@ def objective(trial):
     print("Classification accuracy: {}" .format(np.mean(scores)))
 
     return np.mean(scores)
-
-def epoch_raw(path, event):
-    raw = read_raw_edf(path, stim_channel=False, preload=True)
-    event = pd.read_csv(event, header=None)
-    events = event.values
-    raw.filter(fmin, fmax, n_jobs=1,  
-            l_trans_bandwidth=1,  
-            h_trans_bandwidth=1)
-    epochs = Epochs(raw, events, event_id, tmin, tmax, proj=True, baseline=None, preload=True, event_repeated='drop')
-    del raw
-
-    return epochs
 
 def fix_labels(i):
     if i % 2 == 1:
@@ -61,51 +51,12 @@ trial = inifile.get('setting', 'trial')
 task_num = inifile.get('setting', 'task_num')
 path = inifile.get('setting', 'path')
 
-
-if path == "day":
-    path_b = [(PATHfile.edfpath(name, day, "1"), PATHfile.eventpath(name, day, "1")),
-        (PATHfile.edfpath(name, day, "2"), PATHfile.eventpath(name, day, "2")),
-        (PATHfile.edfpath(name, day, "3"), PATHfile.eventpath(name, day, "3"))]
-elif path == "trial":
-    path_b = [(PATHfile.edfpath(name, day, trial), PATHfile.eventpath(name, day, trial))]
-
-if task_num == "2":
-    event_id = dict(Left=1, Right=2)#, Left2=3, Right2=4, Left3=5, Right3=6, Left4=7, Right4=8)  # map event IDs to tasks
-    target_names = ['left','right']#,'left2', 'right2', 'left3', 'right3', 'left4', 'right4']
-    data40 = np.empty((len(path_b)*40*9,0))
-
-elif task_num == "3":
-    event_id = dict(Left=1, Right=2, Another=3)
-    target_names = ['left', 'right', 'Another']
-    data40 = np.empty((len(path_b)*60*9,0))
-
-
-#frequency bands
-"""
-iter_freqs = [
-    ('Alpha', 8, 12),
-    ('Beta', 13, 25),
-    ('ALL', 1, 30),
-    ('Alpha+Beta', 8, 25)
-]
-"""
 iter_freqs = [
     ('Theta', 4, 7, 1.0),
     ('Alpha', 8, 12, 1.0),
     ('Beta', 13, 25, 1.0),
     ('Gamma', 30, 45, 1.0)
 ]
-
-"""
-time_map = [
-    (0., 1., 0),
-    (0.5, 1.5, 0),
-    (1., 2., 2),
-    (1.5, 2.5, 2),
-    (2., 3., 4),
-    (2.5, 3.5, 4),
-]
-"""
 
 time_map = [
     (0., 1., 0),
@@ -119,6 +70,23 @@ time_map = [
     (2.5, 3.5, 6),
 ]
 
+if path == "day":
+    path_b = [(PATHfile.edfpath(name, day, "1"), PATHfile.eventpath(name, day, "1")),
+        (PATHfile.edfpath(name, day, "2"), PATHfile.eventpath(name, day, "2")),
+        (PATHfile.edfpath(name, day, "3"), PATHfile.eventpath(name, day, "3"))]
+elif path == "trial":
+    path_b = [(PATHfile.edfpath(name, day, trial), PATHfile.eventpath(name, day, trial))]
+
+if task_num == "2":
+    event_id = dict(Left=1, Right=2) # map event IDs to tasks
+    target_names = ['left','right']
+    data40 = np.empty((len(path_b)*40*len(time_map),0))
+
+elif task_num == "3":
+    event_id = dict(Left=1, Right=2, Another=3)
+    target_names = ['left', 'right', 'Another']
+    data40 = np.empty((len(path_b)*60*len(time_map),0))
+
 
 #parameters
 svm = SVC(C=float(inifile.get('setting', 'C')), gamma = float(inifile.get('setting', 'gamma')), kernel='rbf', cache_size=100)
@@ -128,6 +96,9 @@ cv = ShuffleSplit(10, test_size=0.2, random_state=42)
 tmin, tmax =-1., 4.
 
 acc_map = list()
+csp_map = list()
+vec_map = list()
+sca_map = list()
 
 for band, fmin, fmax, mag in iter_freqs:
     epochs = []
@@ -136,7 +107,7 @@ for band, fmin, fmax, mag in iter_freqs:
     csp = CSP(n_components = int(inifile.get('setting', 'n_components')), reg=None, log=True, norm_trace=False, transform_into='average_power')
     # (re)load the data to save memory
     for path, event in path_b:
-        epochs.append(epoch_raw(path, event))
+        epochs.append(Epoch_raw.Epochs_raw(path, event, event_id, fmin, fmax, tmin, tmax))
     epochs = concatenate_epochs(epochs)
     # remove evoked response
     #epochs.subtract_evoked()
@@ -150,9 +121,11 @@ for band, fmin, fmax, mag in iter_freqs:
         large_x = np.vstack((large_x, epochs_data_train))
         l_labels = np.concatenate([l_labels, labels], 0)
     large_x = csp.fit_transform(large_x, l_labels)
+    csp_map.append(csp)
     large_x = vectorizer.fit_transform(large_x, l_labels)
+    vec_map.append(vectorizer)
     large_x = scaler.fit_transform(large_x, l_labels)
-
+    sca_map.append(scaler)
     large_x *= mag
     data40 = np.hstack((data40, large_x))
     scores = cross_val_score(svm, large_x, l_labels, cv=cv, n_jobs=1)
@@ -194,5 +167,13 @@ cm = confusion_matrix(preds, l_labels)
 cm_normalized = cm.astype(float) / cm.sum(axis=1)[:, np.newaxis]
 cm_normalized = pd.DataFrame(data=cm_normalized, index=target_names, columns=target_names)
 sns.heatmap(cm_normalized, annot=True, cmap='Blues', square=True)
-plt.savefig('figure/confusion_matrix_{}_{}_2.png' .format(name, day))
+if path == "day":
+    trial_name = day
+else:
+    trial_name = trial
+plt.savefig('figure/confusion_matrix_multi_{}_{}_{}.png' .format(name, day, trial_name))
 plt.show()
+
+svm.fit(data40, labels)
+pickle_map = [csp_map, svm, vec_map, sca_map]
+pickle_make.maker("csp_map.pickle", pickle_map)

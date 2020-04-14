@@ -4,27 +4,13 @@ import pandas as pd
 import sys
 
 import mne
-from mne import io, Epochs, pick_types, concatenate_epochs
+from mne import concatenate_epochs
 from mne.stats import permutation_cluster_test
 from mne.datasets import sample
-from mne.io import read_raw_edf
 
 from pathfile import PATHfile
+from epoch_raw import Epoch_raw
 
-def epoch_raw(path, event, event_id):
-    raw = read_raw_edf(path, stim_channel=True, preload=True)
-    event = pd.read_csv(event, header=None)
-    events = event.values
-    raw.filter(fmin, fmax, n_jobs=1,  
-            l_trans_bandwidth=1,  
-            h_trans_bandwidth=1)
-    print(include)
-    picks = mne.pick_types(raw.info, meg=False, eog=False, eeg=True, include=include, exclude='bads')
-    epochs = Epochs(raw, events, event_id, tmin, tmax, picks = picks,
-                    proj=True, baseline=None, preload=True, event_repeated='drop')
-    del raw
-
-    return epochs
 if __name__ == "__main__":
     # set epoching parameters
     tmin, tmax =-1., 4.
@@ -47,7 +33,7 @@ if __name__ == "__main__":
     epochs1 = []
     event_id = 1
     for path, event in path_b:
-        epochs1.append(epoch_raw(path, event, event_id))    
+        epochs1.append(Epoch_raw.Epochs_raw(path, event, event_id, fmin, fmax, tmin, tmax, include))    
     epochs1 = concatenate_epochs(epochs1)
     condition1 = epochs1.get_data()  # as 3D matrix
     print(condition1.shape)
@@ -57,7 +43,7 @@ if __name__ == "__main__":
     epochs2 = []
     event_id = 2
     for path, event in path_b:
-        epochs2.append(epoch_raw(path, event, event_id))    
+        epochs2.append(Epoch_raw.Epochs_raw(path, event, event_id, fmin, fmax, tmin, tmax, include))    
     epochs2 = concatenate_epochs(epochs2)
     condition2 = epochs2.get_data()  # as 3D matrix
     condition2 = condition2[:, 0, :]  # take only one channel to get a 2D array
