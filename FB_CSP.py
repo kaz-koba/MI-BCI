@@ -153,7 +153,5 @@ plt.savefig('figure/confusion_matrix_{}_{}_{}.png' .format(name, day, trial_name
 plt.show()
 
 svm.fit(data40, labels)
-pickle_make.maker("csp_map.pickle", csp_map)
-pickle_make.maker("svm.pickle", svm)
-pickle_make.maker("vec_map.pickle", vec_map)
-pickle_make.maker("sca_map.pickle", sca_map)
+pickle_map = [csp_map, svm, vec_map, sca_map]
+pickle_make.maker("csp_map.pickle", pickle_map)
