@@ -38,7 +38,7 @@ elif task_num == "3":
 
 epochs = []
 for path, event in path_b:
-    epochs.append(Epoch_raw.Epochs_raw(path, event, event_id, 5, 35, tmin, tmax, channel_names=["C3", "Cz", "C4"]))    
+    epochs.append(Epoch_raw.Epochs_raw(path, event, event_id, 5, 35, tmin-0.5, tmax+0.5, channel_names=["C3", "Cz", "C4"]))    
 
 epochs = concatenate_epochs(epochs)
 
