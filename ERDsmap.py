@@ -90,7 +90,7 @@ for event in event_id:
     fig.suptitle("ERDS ({})".format(event))
     fig.show()
     if path == "day":
-        trial_name = day
+        trial_name = "1day"
     else:
         trial_name = trial
     fig.savefig('figure/ERDsmap({}-{}-{}-{}).png' .format(name, day, trial_name, event))
