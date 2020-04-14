@@ -31,7 +31,7 @@ if __name__ == "__main__":
     trial = inifile.get('setting', 'trial')
     task_num = inifile.get('setting', 'task_num')
     path = inifile.get('setting', 'path')
-    ch_list = ["Cz", "C3", "C4"]
+    ch_list = ["C3"]
 
     if task_num == "2":
         event_id = [1, 2]
@@ -94,13 +94,14 @@ if __name__ == "__main__":
         sub.set_ylim(-100, 150)
         sub.set_xlabel("time [sec]")
         sub.set_ylabel("ERD [%]")
-        sub.vlines(3, -200, 200, colors='red', label="Cue")
+        sub.vlines(int(task_num), -200, 200, colors='red', label="Cue")
         sub.hlines(0, 0, 7, colors='gray', linestyles='dotted')
         sub.legend()
 
     ax[0].set_title("Left hand trials")
     ax[1].set_title("Right hand trials")
-    ax[2].set_title("Another trials")
+    if task_num == "3":
+        ax[2].set_title("Another trials")
 
     plt.suptitle(f"{name}'s ERD ({fmin}-{fmax} Hz)")
     plt.savefig(f"figure/_[]_{fmin}-{fmax}.png")
