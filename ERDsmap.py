@@ -37,8 +37,8 @@ elif task_num == "3":
     event_id = dict(Left=1, Right=2, Another=3)
 
 epochs = []
-for path, event in path_b:
-    epochs.append(Epoch_raw.Epochs_raw(path, event, event_id, 5, 35, tmin-0.5, tmax+0.5, channel_names=["C3", "Cz", "C4"]))    
+for path_name, event in path_b:
+    epochs.append(Epoch_raw.Epochs_raw(path_name, event, event_id, 5, 35, tmin-0.5, tmax+0.5, channel_names=["C3", "Cz", "C4"]))    
 
 epochs = concatenate_epochs(epochs)
 
@@ -46,7 +46,7 @@ epochs = concatenate_epochs(epochs)
 freqs = np.arange(5, 35, 1)  # frequencies from 2-35Hz
 n_cycles = freqs  # use constant t/f resolution
 vmin, vmax = -0.5, 1.0  # set min and max ERDS values in plot
-baseline = [-2, -1]  # baseline interval (in s)
+baseline = [-2, -0.5]  # baseline interval (in s)
 cmap = center_cmap(plt.cm.RdBu, vmin, vmax)  # zero maps to white
 kwargs = dict(n_permutations=100, step_down_p=0.05, seed=1,
                 buffer_size=None)  # for cluster test
