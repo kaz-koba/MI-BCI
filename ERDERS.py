@@ -17,10 +17,10 @@ from epoch_raw import Epoch_raw
 if __name__ == "__main__":
     # set epoching parameters
     tmin, tmax =-2., 5.
-    fmin, fmax = 2., 40.
+    fmin, fmax = 4., 35.
     event_map = {0:"Left", 1:'Right', 2:'Another'}
     sample_freq = 512
-    reg_sec = 1
+    reg_sec = 2
     inifile = configparser.ConfigParser()
     inifile.read('./parameter.ini', 'UTF-8')
     exec_time = datetime.now().strftime('%Y%m%d_%H:%M:%S')
