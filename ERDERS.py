@@ -17,6 +17,7 @@ from epoch_raw import Epoch_raw
 if __name__ == "__main__":
     # set epoching parameters
     tmin, tmax =-2., 5.
+    fmin, fmax = 2., 40.
     event_map = {0:"Left", 1:'Right', 2:'Another'}
     sample_freq = 512
     reg_sec = 1
