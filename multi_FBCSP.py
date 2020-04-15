@@ -58,18 +58,6 @@ iter_freqs = [
     ('Gamma', 30, 45, 1.0)
 ]
 
-time_map = [
-    (0., 1., 0),
-    (0.25, 1.25, 0),
-    (0.5, 1.5, 0),
-    (1., 2., 3),
-    (1.25, 2.25, 3),
-    (1.5, 2.5, 3),
-    (2., 3., 6),
-    (2.25, 3.25, 6),
-    (2.5, 3.5, 6),
-]
-
 if path == "day":
     path_b = [(PATHfile.edfpath(name, day, "1"), PATHfile.eventpath(name, day, "1")),
         (PATHfile.edfpath(name, day, "2"), PATHfile.eventpath(name, day, "2")),
