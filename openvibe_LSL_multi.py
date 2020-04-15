@@ -65,10 +65,7 @@ def signal_print():
                 i += 1
 
             output = svm.predict(data40)
-            print(data40[0])
-            print(output)
             output = fix_labels(output[0])
-            print(output)
             if stim==1 or stim==2:
                 count += 1
             if output == stim:
@@ -80,7 +77,6 @@ def signal_print():
 def check_stim():
     global stim
     while True:
-        print(stim)
         d, _ = inlet2.pull_sample()
         print(d)
         if d[0] == 769:

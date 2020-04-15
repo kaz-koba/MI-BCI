@@ -34,40 +34,40 @@ def signal_print():
     global stim
     count = 0
     Truecount = 0
+    inlet_flag = 0
     while True:
-        d, _ = inlet1.pull_chunk(timeout=1.05 ,max_samples=513)
-        data40 = np.empty((1,0))
-        i=0
-        d = np.array(d).T
-        for band, fmin, fmax, mag in iter_freqs:
-            x = d
-            csp = csp_map[i]
-            vectorizer = vec_map[i]
-            scaler = sca_map[i]
-            print(x.shape)
-            x = filter.filter_data(x, l_freq=fmin, h_freq=fmax, n_jobs=1, sfreq=512,
-                                    l_trans_bandwidth=1, h_trans_bandwidth=1)
-            x = csp.transform(x[np.newaxis,:,:])
-            x = vectorizer.transform(x)
-            x = scaler.transform(x)
-            x *= mag
-            data40 = np.hstack((data40, x))
-            i += 1
+        if stim == 0:
+            inlet1.pull_sample()
+        else:
+            d, _ = inlet1.pull_chunk(timeout=1. ,max_samples=513)
+            data40 = np.empty((1,0))
+            i=0
+            d = np.array(d).T
+            for band, fmin, fmax, mag in iter_freqs:
+                x = d
+                csp = csp_map[i]
+                vectorizer = vec_map[i]
+                scaler = sca_map[i]
+                x = filter.filter_data(x, l_freq=fmin, h_freq=fmax, n_jobs=1, sfreq=512,
+                                        l_trans_bandwidth=1, h_trans_bandwidth=1)
+                x = csp.transform(x[np.newaxis,:,:])
+                x = vectorizer.transform(x)
+                x = scaler.transform(x)
+                x *= mag
+                data40 = np.hstack((data40, x))
+                i += 1
 
-        output = svm.predict(data40)
-        print(output)
-        #print(output)
-        if stim==1 or stim==2:
-            count += 1
-        if output[0] == stim:
-            Truecount += 1
-        if count != 0:
-            print("acc: {}%" .format(Truecount/count*100))
+            output = svm.predict(data40)
+            if stim==1 or stim==2:
+                count += 1
+            if output[0] == stim:
+                Truecount += 1
+            if count != 0:
+                print("acc: {}%" .format(Truecount/count*100))
         
 def check_stim():
     global stim
     while True:
-        print(stim)
         d, _ = inlet2.pull_sample()
         print(d)
         if d[0] == 769:
