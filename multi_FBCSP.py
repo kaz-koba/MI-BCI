@@ -58,7 +58,31 @@ iter_freqs = [
     ('Gamma', 30, 45, 1.0)
 ]
 
-time_map = [
+if path == "day":
+    path_b = [(PATHfile.edfpath(name, day, "1"), PATHfile.eventpath(name, day, "1")),
+        (PATHfile.edfpath(name, day, "2"), PATHfile.eventpath(name, day, "2")),
+        (PATHfile.edfpath(name, day, "3"), PATHfile.eventpath(name, day, "3"))]
+elif path == "trial":
+    path_b = [(PATHfile.edfpath(name, day, trial), PATHfile.eventpath(name, day, trial))]
+
+if task_num == "2":
+    time_map = [
+    (0., 1., 0),
+    (0.25, 1.25, 0),
+    (0.5, 1.5, 0),
+    (1., 2., 2),
+    (1.25, 2.25, 2),
+    (1.5, 2.5, 2),
+    (2., 3., 4),
+    (2.25, 3.25, 4),
+    (2.5, 3.5, 4),
+    ]
+    event_id = dict(Left=1, Right=2) # map event IDs to tasks
+    target_names = ['left','right']
+    data40 = np.empty((len(path_b)*40*len(time_map),0))
+
+elif task_num == "3":
+    time_map = [
     (0., 1., 0),
     (0.25, 1.25, 0),
     (0.5, 1.5, 0),
@@ -68,21 +92,7 @@ time_map = [
     (2., 3., 6),
     (2.25, 3.25, 6),
     (2.5, 3.5, 6),
-]
-
-if path == "day":
-    path_b = [(PATHfile.edfpath(name, day, "1"), PATHfile.eventpath(name, day, "1")),
-        (PATHfile.edfpath(name, day, "2"), PATHfile.eventpath(name, day, "2")),
-        (PATHfile.edfpath(name, day, "3"), PATHfile.eventpath(name, day, "3"))]
-elif path == "trial":
-    path_b = [(PATHfile.edfpath(name, day, trial), PATHfile.eventpath(name, day, trial))]
-
-if task_num == "2":
-    event_id = dict(Left=1, Right=2) # map event IDs to tasks
-    target_names = ['left','right']
-    data40 = np.empty((len(path_b)*40*len(time_map),0))
-
-elif task_num == "3":
+    ]
     event_id = dict(Left=1, Right=2, Another=3)
     target_names = ['left', 'right', 'Another']
     data40 = np.empty((len(path_b)*60*len(time_map),0))
