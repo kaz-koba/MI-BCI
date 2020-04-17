@@ -21,7 +21,7 @@ iter_freqs = pickle_map[4]
 stim = 0
 inifile = configparser.ConfigParser()
 inifile.read('./parameter.ini', 'UTF-8')
-task_num = inifile.get('setting', 'task_num')
+task_num = int(inifile.get('setting', 'task_num'))
 
 def inlet_specific_stream(stream_name):
     streams = resolve_streams(wait_time=3.)
