@@ -34,12 +34,12 @@ def signal_print():
     global stim
     count = 0
     Truecount = 0
-    inlet_flag = 0
     while True:
         if stim == 0:
             inlet1.pull_sample()
         else:
             d, _ = inlet1.pull_chunk(timeout=1. ,max_samples=513)
+            n_id = stim
             data40 = np.empty((1,0))
             i=0
             d = np.array(d).T
@@ -58,9 +58,9 @@ def signal_print():
                 i += 1
 
             output = svm.predict(data40)
-            if stim!=0:
+            if n_id!=0:
                 count += 1
-            if output[0] == stim:
+            if output[0] == n_id:
                 Truecount += 1
             if count != 0:
                 print("acc: {}%" .format(Truecount/count*100))

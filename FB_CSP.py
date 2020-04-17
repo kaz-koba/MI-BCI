@@ -63,14 +63,6 @@ elif task_num == "3":
 
 
 #frequency bands
-"""
-iter_freqs = [
-    ('Alpha', 8, 12),
-    ('Beta', 13, 25),
-    ('ALL', 1, 30),
-    ('Alpha+Beta', 8, 25)
-]
-"""
 iter_freqs = [
     ('Theta', 4, 7, 1.0),
     ('Alpha', 8, 12, 1.0),

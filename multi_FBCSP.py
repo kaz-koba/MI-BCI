@@ -34,13 +34,14 @@ def objective(trial):
 
     return np.mean(scores)
 
-def fix_labels(i):
-    if i % 3 == 0:
-        return 3
-    elif i % 3 == 1:
-        return 1
-    else:
-        return 2
+def fix_labels(i, task_num):
+    id = task_num
+    while True:
+        if i % task_num == 0:
+            return id
+        id -= 1
+        if id == 1:
+            return 1
 
 # set epoching parameters
 tmin, tmax =-1., 4.
@@ -67,28 +68,21 @@ if path == "day":
 elif path == "trial":
     path_b = [(PATHfile.edfpath(name, day, trial), PATHfile.eventpath(name, day, trial))]
 
-if task_num == "2":
-    time_map = [
-    (0., 1., 0),
-    (0.5, 1.5, 2),
-    (1., 2., 4),
-    (1.5, 2.5, 6),
-    (2., 3., 8),
-    (2.5, 3.5, 10)
+time_map = [
+    (0., 1., task_num*0),
+    (0.5, 1.5, task_num*0),
+    (1., 2., task_num*1),
+    (1.5, 2.5, task_num*1),
+    (2., 3., task_num*2),
+    (2.5, 3.5, task_num*2)
     ]
+
+if task_num == "2":
     event_id = dict(Left=1, Right=2) # map event IDs to tasks
     target_names = ['left','right']
     data40 = np.empty((len(path_b)*40*len(time_map),0))
 
 elif task_num == "3":
-    time_map = [
-    (0., 1., 0),
-    (0.5, 1.5, 0),
-    (1., 2., 3),
-    (1.5, 2.5, 3),
-    (2., 3., 6),
-    (2.5, 3.5, 6)
-    ]
     event_id = dict(Left=1, Right=2, Another=3)
     target_names = ['left', 'right', 'Another']
     data40 = np.empty((len(path_b)*60*len(time_map),0))
@@ -161,8 +155,8 @@ for train, test in cv.split(data40, l_labels):
 
 print(svm.predict(data40))
 print(preds)
-preds = [fix_labels(i) for i in preds]
-l_labels = [fix_labels(i) for i in l_labels]
+preds = [fix_labels(i, task_num) for i in preds]
+l_labels = [fix_labels(i, task_num) for i in l_labels]
 
 
 # Classification report

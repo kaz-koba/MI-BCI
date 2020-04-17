@@ -4,6 +4,7 @@ from mne import filter
 
 import numpy as np
 import threading
+import configparser
 
 import signal
 signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -18,6 +19,9 @@ sca_map = pickle_map[3]
 iter_freqs = pickle_map[4]
 
 stim = 0
+inifile = configparser.ConfigParser()
+inifile.read('./parameter.ini', 'UTF-8')
+task_num = inifile.get('setting', 'task_num')
 
 def inlet_specific_stream(stream_name):
     streams = resolve_streams(wait_time=3.)
@@ -29,24 +33,25 @@ def inlet_specific_stream(stream_name):
     inlet = StreamInlet(streams[idx])
     return inlet
 
-def fix_labels(i):
-    if i % 3 == 0:
-        return 3
-    elif i % 3 == 1:
-        return 1
-    else:
-        return 2
+def fix_labels(i, task_num):
+    id = task_num
+    while True:
+        if i % task_num == 0:
+            return id
+        id -= 1
+        if id == 1:
+            return 1
 
 def signal_print():
     global stim
     count = 0
     Truecount = 0
-    inlet_flag = 0
     while True:
         if stim == 0:
             inlet1.pull_sample()
         else:
             d, _ = inlet1.pull_chunk(timeout=1. ,max_samples=512)
+            n_id = stim
             data40 = np.empty((1,0))
             i=0
             d = np.array(d).T
@@ -67,10 +72,10 @@ def signal_print():
                 i += 1
 
             output = svm.predict(data40)
-            output = fix_labels(output[0])
-            if stim!=0:
+            output = fix_labels(output[0], task_num)
+            if n_id != 0:
                 count += 1
-            if output == stim:
+            if output == n_id:
                 Truecount += 1
             if count != 0:
                 print("acc: {}%" .format(Truecount/count*100))
