@@ -46,9 +46,9 @@ path = inifile.get('setting', 'path')
 
 
 if path == "day":
-    path_b = [(PATHfile.edfpath(name, day, "1"), PATHfile.eventpath(name, day, "1")),
-        (PATHfile.edfpath(name, day, "2"), PATHfile.eventpath(name, day, "2")),
+    path_b = [(PATHfile.edfpath(name, day, "2"), PATHfile.eventpath(name, day, "2")),
         (PATHfile.edfpath(name, day, "3"), PATHfile.eventpath(name, day, "3"))]
+        #(PATHfile.edfpath(name, day, "3"), PATHfile.eventpath(name, day, "3"))]
 elif path == "trial":
     path_b = [(PATHfile.edfpath(name, day, trial), PATHfile.eventpath(name, day, trial))]
 

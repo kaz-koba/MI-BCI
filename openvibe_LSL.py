@@ -58,7 +58,7 @@ def signal_print():
                 i += 1
 
             output = svm.predict(data40)
-            if stim==1 or stim==2:
+            if stim!=0:
                 count += 1
             if output[0] == stim:
                 Truecount += 1
@@ -74,6 +74,8 @@ def check_stim():
             stim = 1
         elif d[0] == 770:
             stim = 2
+        elif d[0] == 774:
+            stim = 3
         elif d[0] == 800:
             stim = 0
 

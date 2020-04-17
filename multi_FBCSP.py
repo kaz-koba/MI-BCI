@@ -35,7 +35,9 @@ def objective(trial):
     return np.mean(scores)
 
 def fix_labels(i):
-    if i % 2 == 1:
+    if i % 3 == 0:
+        return 3
+    elif i % 3 == 1:
         return 1
     else:
         return 2
@@ -59,23 +61,20 @@ iter_freqs = [
 ]
 
 if path == "day":
-    path_b = [(PATHfile.edfpath(name, day, "1"), PATHfile.eventpath(name, day, "1")),
-        (PATHfile.edfpath(name, day, "2"), PATHfile.eventpath(name, day, "2")),
-        (PATHfile.edfpath(name, day, "3"), PATHfile.eventpath(name, day, "3"))]
+    path_b = [(PATHfile.edfpath(name, day, "3"), PATHfile.eventpath(name, day, "3")),
+        (PATHfile.edfpath(name, day, "2"), PATHfile.eventpath(name, day, "2"))]
+        #(PATHfile.edfpath(name, day, "3"), PATHfile.eventpath(name, day, "3"))]
 elif path == "trial":
     path_b = [(PATHfile.edfpath(name, day, trial), PATHfile.eventpath(name, day, trial))]
 
 if task_num == "2":
     time_map = [
     (0., 1., 0),
-    (0.25, 1.25, 0),
-    (0.5, 1.5, 0),
-    (1., 2., 2),
-    (1.25, 2.25, 2),
-    (1.5, 2.5, 2),
-    (2., 3., 4),
-    (2.25, 3.25, 4),
-    (2.5, 3.5, 4),
+    (0.5, 1.5, 2),
+    (1., 2., 4),
+    (1.5, 2.5, 6),
+    (2., 3., 8),
+    (2.5, 3.5, 10)
     ]
     event_id = dict(Left=1, Right=2) # map event IDs to tasks
     target_names = ['left','right']
@@ -84,14 +83,11 @@ if task_num == "2":
 elif task_num == "3":
     time_map = [
     (0., 1., 0),
-    (0.25, 1.25, 0),
     (0.5, 1.5, 0),
     (1., 2., 3),
-    (1.25, 2.25, 3),
     (1.5, 2.5, 3),
     (2., 3., 6),
-    (2.25, 3.25, 6),
-    (2.5, 3.5, 6),
+    (2.5, 3.5, 6)
     ]
     event_id = dict(Left=1, Right=2, Another=3)
     target_names = ['left', 'right', 'Another']

@@ -30,7 +30,9 @@ def inlet_specific_stream(stream_name):
     return inlet
 
 def fix_labels(i):
-    if i % 2 == 1:
+    if i % 3 == 0:
+        return 3
+    elif i % 3 == 1:
         return 1
     else:
         return 2
@@ -66,7 +68,7 @@ def signal_print():
 
             output = svm.predict(data40)
             output = fix_labels(output[0])
-            if stim==1 or stim==2:
+            if stim!=0:
                 count += 1
             if output == stim:
                 Truecount += 1
@@ -83,6 +85,8 @@ def check_stim():
             stim = 1
         elif d[0] == 770:
             stim = 2
+        elif d[0] == 774:
+            stim = 3
         elif d[0] == 800:
             stim = 0
 
