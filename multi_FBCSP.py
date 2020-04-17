@@ -51,7 +51,7 @@ inifile.read('./parameter.ini', 'UTF-8')
 day = inifile.get('setting', 'day')
 name = inifile.get('setting', 'name')
 trial = inifile.get('setting', 'trial')
-task_num = inifile.get('setting', 'task_num')
+task_num = int(inifile.get('setting', 'task_num'))
 path = inifile.get('setting', 'path')
 
 iter_freqs = [
@@ -77,12 +77,12 @@ time_map = [
     (2.5, 3.5, task_num*2)
     ]
 
-if task_num == "2":
+if task_num == 2:
     event_id = dict(Left=1, Right=2) # map event IDs to tasks
     target_names = ['left','right']
     data40 = np.empty((len(path_b)*40*len(time_map),0))
 
-elif task_num == "3":
+elif task_num == 3:
     event_id = dict(Left=1, Right=2, Another=3)
     target_names = ['left', 'right', 'Another']
     data40 = np.empty((len(path_b)*60*len(time_map),0))
