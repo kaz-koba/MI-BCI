@@ -6,7 +6,7 @@ import pandas as pd
 class Epoch_raw:
     def __init__(self, path, event, event_id, fmin=2, fmax=45, tmin=-1, tmax=4,
                 channel_names = ["FCz", "FC1", "FC2", "FC3", "FC4", "Cz", "C1", "C2", "C3", "C4"],
-                exclude_names = None):
+                exclude_names = "bads"):
         #mustparameter
         self.path = path
         self.event = event
@@ -21,11 +21,12 @@ class Epoch_raw:
         self.exclude_names = exclude_names
     
     def Epochs_raw(path, event, event_id, fmin = 2, fmax = 45, tmin = -1, tmax = 4, 
-                    channel_names = ["FCz", "FC1", "FC2", "FC3", "FC4", "Cz", "C1", "C2", "C3", "C4"]):
+                    channel_names = ["FCz", "FC1", "FC2", "FC3", "FC4", "Cz", "C1", "C2", "C3", "C4"],
+                    exclude_names="bads"):
         raw = read_raw_edf(path, stim_channel=False, preload=True)
         event = pd.read_csv(event, header=None)
         events = event.values
-        picks = mne.pick_types(raw.info, eeg=True, stim=True, include=channel_names, exclude=None)
+        picks = mne.pick_types(raw.info, eeg=True, stim=True, include=channel_names, exclude_names="bads")
         raw.filter(fmin, fmax, n_jobs=1,  
                 l_trans_bandwidth=1,  
                 h_trans_bandwidth=1)
