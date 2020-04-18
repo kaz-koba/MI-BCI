@@ -26,7 +26,7 @@ class Epoch_raw:
         raw = read_raw_edf(path, stim_channel=False, preload=True)
         event = pd.read_csv(event, header=None)
         events = event.values
-        picks = mne.pick_types(raw.info, eeg=True, stim=True, include=channel_names, exclude_names="bads")
+        picks = mne.pick_types(raw.info, eeg=True, stim=True, include=channel_names, exclude="bads")
         raw.filter(fmin, fmax, n_jobs=1,  
                 l_trans_bandwidth=1,  
                 h_trans_bandwidth=1)
