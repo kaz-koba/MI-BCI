@@ -12,6 +12,7 @@ import mne
 from mne import concatenate_epochs
 
 from mne.decoding import CSP , Vectorizer
+from mne.io import read_raw_edf
 from sklearn import preprocessing
 from sklearn.metrics import confusion_matrix, classification_report
 import seaborn as sns
@@ -90,7 +91,8 @@ for band, fmin, fmax, mag in iter_freqs:
             norm_trace=False, transform_into='average_power')
     # (re)load the data to save memory
     for path, event in path_b:
-        epochs.append(Epoch_raw.Epochs_raw(path, event, event_id, fmin, fmax, tmin, tmax))
+        raw = read_raw_edf(path, stim_channel=False, preload=True)
+        epochs.append(Epoch_raw.Epochs_raw(raw, event, event_id, fmin, fmax, tmin, tmax))
     epochs = concatenate_epochs(epochs)
     labels = epochs.events[:, -1]
     # remove evoked response
@@ -112,7 +114,7 @@ for band, fmin, fmax, mag in iter_freqs:
 for freq_name, fmin, fmax, acc in acc_map:
     print("{}({}~{}) Classification accuracy: {}" .format(freq_name, fmin, fmax, np.mean(acc)))
 
-print(data40.shape)
+print(data40)
 study = optuna.create_study(direction='maximize')
 study.optimize(objective, n_trials=100)
 svm = SVC(C=study.best_trial.params['C'], gamma = study.best_trial.params['gamma'], kernel='rbf', cache_size=100)

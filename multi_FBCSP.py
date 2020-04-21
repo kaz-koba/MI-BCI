@@ -107,7 +107,8 @@ for band, fmin, fmax, mag in iter_freqs:
     csp = CSP(n_components = int(inifile.get('setting', 'n_components')), reg=None, log=True, norm_trace=False, transform_into='average_power')
     # (re)load the data to save memory
     for path, event in path_b:
-        epochs.append(Epoch_raw.Epochs_raw(path, event, event_id, fmin, fmax, tmin, tmax))
+        raw = read_raw_edf(path, stim_channel=False, preload=True)
+        epochs.append(Epoch_raw.Epochs_raw(raw, event, event_id, fmin, fmax, tmin, tmax))
     epochs = concatenate_epochs(epochs)
     # remove evoked response
     #epochs.subtract_evoked()

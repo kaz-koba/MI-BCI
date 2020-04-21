@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import mne
 from mne import concatenate_epochs
+from mne.io import read_raw_edf
 from mne.time_frequency import tfr_multitaper
 from mne.stats import permutation_cluster_1samp_test as pcluster_test
 from mne.viz.utils import center_cmap
@@ -38,12 +39,13 @@ elif task_num == "3":
 
 epochs = []
 for path_name, event in path_b:
-    epochs.append(Epoch_raw.Epochs_raw(path_name, event, event_id, 5, 35, tmin-0.5, tmax+0.5, channel_names=["C3", "Cz", "C4"]))    
+    raw = read_raw_edf(path_name, stim_channel=False, preload=True)
+    picks = mne.pick_channels(raw.info["ch_names"], ["C3", "Cz", "C4"])
+    epochs.append(Epoch_raw.Epochs_raw(raw, event, event_id, 5, 35, tmin-0.5, tmax+0.5, picks=picks)) 
 
 epochs = concatenate_epochs(epochs)
-
 # compute ERDS maps ###########################################################
-freqs = np.arange(5, 35, 1)  # frequencies from 2-35Hz
+freqs = np.arange(5, 35, 1)  # frequencies from 2-35Hzs
 n_cycles = freqs  # use constant t/f resolution
 vmin, vmax = -0.5, 1.0  # set min and max ERDS values in plot
 baseline = [-2, -0.5]  # baseline interval (in s)
