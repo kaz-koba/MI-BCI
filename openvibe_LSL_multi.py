@@ -61,8 +61,7 @@ def signal_print():
                 vectorizer = vec_map[i]
                 scaler = sca_map[i]
                 print(x.shape)
-                x = filter.filter_data(x, l_freq=fmin, h_freq=fmax, n_jobs=1, sfreq=512,
-                                        l_trans_bandwidth=1, h_trans_bandwidth=1)
+                x = filter.filter_data(x, sfreq=513, l_freq=fmin, h_freq=fmax, fir_design='firwin')
                 x = csp.transform(x[np.newaxis,:,:])
                 print(x)
                 x = vectorizer.transform(x)

@@ -19,9 +19,7 @@ class Epoch_raw:
     def Epochs_raw(raw, event, event_id, fmin = 2, fmax = 45, tmin = -1, tmax = 4, picks = None):
         event = pd.read_csv(event, header=None)
         events = event.values
-        raw.filter(fmin, fmax, n_jobs=1,  
-                l_trans_bandwidth=1,  
-                h_trans_bandwidth=1)
+        raw.filter(fmin, fmax, fir_design='firwin')
         epochs = Epochs(raw, events, event_id, tmin, tmax, proj=True, baseline=None, preload=True, 
                         picks = picks, event_repeated='drop')
         del raw
