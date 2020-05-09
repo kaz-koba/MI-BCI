@@ -36,7 +36,7 @@ def inlet_specific_stream(stream_name):
 def fix_labels(i, task_num):
     id = task_num
     while True:
-        if i % task_num == 0:
+        if i % id == 0:
             return id
         id -= 1
         if id == 1:
@@ -70,7 +70,7 @@ def signal_print():
                 data = np.hstack((data, x))
                 i += 1
 
-            output = svm.predict(data40)
+            output = svm.predict(data)
             output = fix_labels(output[0], task_num)
             if n_id != 0:
                 count += 1

@@ -72,9 +72,9 @@ time_map = [
     (0., 1., task_num*0),
     (0.5, 1.5, task_num*0),
     (1., 2., task_num*1),
-    (1.5, 2.5, task_num*1),
-    (2., 3., task_num*2),
-    (2.5, 3.5, task_num*2)
+    (1.5, 2.5, task_num*1)
+    #(2., 3., task_num*2),
+    #(2.5, 3.5, task_num*2)
     ]
 
 if task_num == 2:
