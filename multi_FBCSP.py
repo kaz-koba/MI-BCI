@@ -63,19 +63,20 @@ iter_freqs = [
 
 if path == "day":
     path_b = [(PATHfile.edfpath(name, day, "1"), PATHfile.eventpath(name, day, "1")),
-        (PATHfile.edfpath(name, day, "2"), PATHfile.eventpath(name, day, "2")),
-        (PATHfile.edfpath(name, day, "3"), PATHfile.eventpath(name, day, "3"))]
+        (PATHfile.edfpath(name, day, "2"), PATHfile.eventpath(name, day, "2"))]
+        #(PATHfile.edfpath(name, day, "3"), PATHfile.eventpath(name, day, "3"))]
 elif path == "trial":
     path_b = [(PATHfile.edfpath(name, day, trial), PATHfile.eventpath(name, day, trial))]
 
 time_map = [
     (0., 1., task_num*0),
-    (0.5, 1.5, task_num*0),
-    (1., 2., task_num*1),
-    (1.5, 2.5, task_num*1)
-    #(2., 3., task_num*2),
-    #(2.5, 3.5, task_num*2)
+    (0.25, 1.25, task_num*0),
+    (1.5, 2.5, task_num*1),
+    (1.75, 2.75, task_num*1),
+    (3., 4., task_num*2),
+    (3.25, 4.25, task_num*2)
     ]
+
 
 if task_num == 2:
     event_id = dict(Left=1, Right=2) # map event IDs to tasks
