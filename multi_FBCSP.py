@@ -44,7 +44,7 @@ def fix_labels(i, task_num):
             return 1
 
 # set epoching parameters
-tmin, tmax =-1., 4.
+tmin, tmax =-1., 5.
 inifile = configparser.ConfigParser()
 inifile.read('./parameter.ini', 'UTF-8')
 
