@@ -37,7 +37,7 @@ def objective(trial):
 def fix_labels(i, task_num):
     id = task_num
     while True:
-        if i % task_num == 0:
+        if i % id == 0:
             return id
         id -= 1
         if id == 1:
@@ -62,9 +62,9 @@ iter_freqs = [
 ]
 
 if path == "day":
-    path_b = [(PATHfile.edfpath(name, day, "3"), PATHfile.eventpath(name, day, "3")),
-        (PATHfile.edfpath(name, day, "2"), PATHfile.eventpath(name, day, "2"))]
-        #(PATHfile.edfpath(name, day, "3"), PATHfile.eventpath(name, day, "3"))]
+    path_b = [(PATHfile.edfpath(name, day, "1"), PATHfile.eventpath(name, day, "1")),
+        (PATHfile.edfpath(name, day, "2"), PATHfile.eventpath(name, day, "2")),
+        (PATHfile.edfpath(name, day, "3"), PATHfile.eventpath(name, day, "3"))]
 elif path == "trial":
     path_b = [(PATHfile.edfpath(name, day, trial), PATHfile.eventpath(name, day, trial))]
 

@@ -52,7 +52,7 @@ def signal_print():
         else:
             d, _ = inlet1.pull_chunk(timeout=1. ,max_samples=512)
             n_id = stim
-            data40 = np.empty((1,0))
+            data = np.empty((1,0))
             i=0
             d = np.array(d).T
             for band, fmin, fmax, mag in iter_freqs:
@@ -67,7 +67,7 @@ def signal_print():
                 x = vectorizer.transform(x)
                 x = scaler.transform(x)
                 x *= mag
-                data40 = np.hstack((data40, x))
+                data = np.hstack((data, x))
                 i += 1
 
             output = svm.predict(data40)

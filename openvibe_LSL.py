@@ -9,6 +9,7 @@ import signal
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 import pickle
+
 with open('csp_map.pickle', mode='rb') as fp:
     pickle_map = pickle.load(fp)
 csp_map = pickle_map[0]
@@ -16,7 +17,6 @@ svm = pickle_map[1]
 vec_map = pickle_map[2]
 sca_map = pickle_map[3]
 iter_freqs = pickle_map[4]
-
 
 stim = 0
 
@@ -40,7 +40,7 @@ def signal_print():
         else:
             d, _ = inlet1.pull_chunk(timeout=1. ,max_samples=513)
             n_id = stim
-            data40 = np.empty((1,0))
+            data = np.empty((1,0))
             i=0
             d = np.array(d).T
             for band, fmin, fmax, mag in iter_freqs:
@@ -53,10 +53,10 @@ def signal_print():
                 x = vectorizer.transform(x)
                 x = scaler.transform(x)
                 x *= mag
-                data40 = np.hstack((data40, x))
+                data = np.hstack((data, x))
                 i += 1
 
-            output = svm.predict(data40)
+            output = svm.predict(data)
             if n_id!=0:
                 count += 1
             if output[0] == n_id:
