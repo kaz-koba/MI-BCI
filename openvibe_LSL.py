@@ -1,9 +1,11 @@
 from pylsl import StreamInlet, resolve_streams
+from pythonosc import udp_client
 from collections import deque
 from mne import filter
 
 import numpy as np
 import threading
+import argparse
 
 import signal
 signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -79,11 +81,23 @@ def check_stim():
             stim = 0
 
 if __name__ == "__main__":
+    #LSLsetting
     stream_signal = 'openvibeSignal'
     stream_marker = 'openvibeMarkers'
     inlet2 = inlet_specific_stream(stream_marker)
     inlet1 = inlet_specific_stream(stream_signal)
     thread_1 = threading.Thread(target=signal_print)
     thread_2 = threading.Thread(target=check_stim)
+
+    #OSCsetting
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--ip", default="192.168.0.88",
+    help="The ip of the OSC server")
+    parser.add_argument("--port", type=int, default=8888,
+    help="The port the OSC server is listening on")
+    args = parser.parse_args()
+
+    client = udp_client.SimpleUDPClient(args.ip, args.port)
+
     thread_1.start()
     thread_2.start()
