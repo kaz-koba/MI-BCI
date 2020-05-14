@@ -39,9 +39,10 @@ def fix_labels(i, task_num):
     id = task_num
     while True:
         if i % id == 0:
-            return id
-        id -= 1
-        if id == 1:
+            return 3
+        elif i % id == 2:
+            return 2
+        else:
             return 1
 
 def signal_print():
@@ -76,15 +77,16 @@ def signal_print():
             output = fix_labels(output[0], task_num)
             client.send_message("/output", output)
             if n_id != 0:
-                count[n_id] += 1
+                count[n_id-1] += 1
             if output == n_id:
-                Truecount[n_id] += 1
+                Truecount[n_id-1] += 1
             if count[0] != 0:
                 print("l_acc: {}%" .format(Truecount[0]/count[0]*100))
             if count[1] != 0:
                 print("r_acc: {}%" .format(Truecount[1]/count[1]*100))
             if count[2] != 0:
                 print("a_acc: {}%" .format(Truecount[2]/count[2]*100))
+            
         
         
 def check_stim():

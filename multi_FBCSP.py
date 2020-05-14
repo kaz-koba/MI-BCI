@@ -38,9 +38,10 @@ def fix_labels(i, task_num):
     id = task_num
     while True:
         if i % id == 0:
-            return id
-        id -= 1
-        if id == 1:
+            return 3
+        elif i % id == 2:
+            return 2
+        else:
             return 1
 
 # set epoching parameters
@@ -94,7 +95,7 @@ svm = SVC(C=float(inifile.get('setting', 'C')), gamma = float(inifile.get('setti
 cv = ShuffleSplit(10, test_size=0.2, random_state=42)
 
 # set epoching parameters
-tmin, tmax =-1., 4.
+tmin, tmax =-1., 5.
 
 acc_map = list()
 csp_map = list()
