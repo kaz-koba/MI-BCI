@@ -35,8 +35,8 @@ def inlet_specific_stream(stream_name):
 
 def signal_print():
     global stim
-    count = 0
-    Truecount = 0
+    count = [0]*3
+    Truecount = [0]*3
     while True:
         if stim == 0:
             inlet1.pull_sample()
@@ -60,12 +60,16 @@ def signal_print():
                 i += 1
 
             output = svm.predict(data)
-            if n_id!=0:
-                count += 1
-            if output[0] == n_id:
-                Truecount += 1
-            if count != 0:
-                print("acc: {}%" .format(Truecount/count*100))
+            if n_id != 0:
+                count[n_id-1] += 1
+            if output == n_id:
+                Truecount[n_id-1] += 1
+            if count[0] != 0:
+                print("l_acc: {}%" .format(Truecount[0]/count[0]*100))
+            if count[1] != 0:
+                print("r_acc: {}%" .format(Truecount[1]/count[1]*100))
+            if count[2] != 0:
+                print("a_acc: {}%" .format(Truecount[2]/count[2]*100))
         
 def check_stim():
     global stim
