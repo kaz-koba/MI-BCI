@@ -26,13 +26,10 @@ import pickle_make
 def fix_labels(i, task_num):
     id = task_num
     while True:
-        if i % id == 0:
-            return 3
-        elif i % id == 2:
-            return 2
-        else:
-            return 1
-
+        if i % task_num == 0:
+            return id
+        id -= 1
+        
 def objective(trial):
     C = trial.suggest_loguniform('C', 1e-4, 1e4)
     gamma = trial.suggest_loguniform('gamma', 1e-4, 1e4)
