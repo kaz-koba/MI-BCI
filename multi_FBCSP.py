@@ -38,26 +38,13 @@ def objective(trial):
     gamma = trial.suggest_loguniform('gamma', 1e-4, 1e4)
 
     svm = SVC(C=C, gamma = gamma, kernel='rbf', cache_size=100)
-    cv = StratifiedKFold(n_splits=10, shuffle=True, random_state=42)
 
-    preds = np.empty(len(l_labels))
-    for train, test in cv.split(data40, l_labels):
-        svm.fit(data40[train], l_labels[train])
-        preds[test] = svm.predict(data40[test])
-
-    fix_preds = [fix_labels(i, task_num) for i in preds]
-    fix_label = [fix_labels(i, task_num) for i in l_labels]
-    acc = accuracy_score(fix_preds, fix_label)
-    print("Classification accuracy: {}" .format(acc))
-
-    return acc
-    """
     scores = cross_val_score(svm, data40, l_labels, cv=cv, n_jobs=1)
 
     print("Classification accuracy: {}" .format(np.mean(scores)))
 
     return np.mean(scores)
-    """
+
 
 # set epoching parameters
 tmin, tmax =-1., 5.
@@ -86,11 +73,9 @@ elif path == "trial":
 
 time_map = [
     (0., 1., task_num*0),
-    (0.25, 1.25, task_num*1),
-    (1.5, 2.5, task_num*2),
-    (1.75, 2.75, task_num*3),
-    (3., 4., task_num*4),
-    (3.25, 4.25, task_num*5)
+    (0.25, 1.25, task_num*0),
+    (3., 4., task_num*1),
+    (3.25, 4.25, task_num*1)
     ]
 
 
