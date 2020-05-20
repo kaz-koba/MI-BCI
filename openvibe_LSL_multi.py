@@ -35,13 +35,14 @@ def inlet_specific_stream(stream_name):
     inlet = StreamInlet(streams[idx])
     return inlet
 
-def fix_labels(i, id):
-    if i % id == 0:
-        return 3
-    elif i % id == 2:
-        return 2
-    else:
-        return 1
+def fix_labels(i, task_num):
+    id = 1
+    if i % task_num == 0:
+        return task_num 
+    while True:
+        if i % task_num == id:
+            return id
+        id += 1
 
 def signal_print():
     global stim

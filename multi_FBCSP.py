@@ -24,12 +24,14 @@ from epoch_raw import Epoch_raw
 import pickle_make
 
 def fix_labels(i, task_num):
-    id = task_num
+    id = 1
+    if i % task_num == 0:
+        return task_num 
     while True:
-        if i % task_num == 0:
+        if i % task_num == id:
             return id
-        id -= 1
-        
+        id += 1
+
 def objective(trial):
     C = trial.suggest_loguniform('C', 1e-4, 1e4)
     gamma = trial.suggest_loguniform('gamma', 1e-4, 1e4)
@@ -74,6 +76,34 @@ time_map = [
     (3., 4., task_num*1),
     (3.25, 4.25, task_num*1)
     ]
+
+"""
+time_map = [
+    (0., 1., task_num*0),
+    (4., 5., task_num*16)
+    ]
+"""
+"""
+time_map = [
+    (0., 1., task_num*0),
+    (0.25, 1.25, task_num*1),
+    (0.5, 1.5, task_num*2),
+    (0.75, 1.75, task_num*3),
+    (1., 2., task_num*4),
+    (1.25, 2.25, task_num*5),
+    (1.5, 2.5, task_num*6),
+    (1.75, 2.75, task_num*7),
+    (2., 3., task_num*8),
+    (2.25, 3.25, task_num*9),
+    (2.5, 3.5, task_num*10),
+    (2.75, 3.75, task_num*11),
+    (3., 4., task_num*12),
+    (3.25, 4.25, task_num*13),
+    (3.5, 4.5, task_num*14),
+    (3.75, 4.75, task_num*15),
+    (4., 5., task_num*16)
+    ]
+"""
 
 
 if task_num == 2:
@@ -153,8 +183,6 @@ for train, test in cv.split(data40, l_labels):
     svm.fit(data40[train], l_labels[train])
     preds[test] = svm.predict(data40[test])
 
-print(svm.predict(data40))
-print(preds)
 preds = [fix_labels(i, task_num) for i in preds]
 l_labels = [fix_labels(i, task_num) for i in l_labels]
 
