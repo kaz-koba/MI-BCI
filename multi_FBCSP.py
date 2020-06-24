@@ -57,25 +57,31 @@ task_num = int(inifile.get('setting', 'task_num'))
 path = inifile.get('setting', 'path')
 
 iter_freqs = [
-    ('Theta', 4, 7, 1.0),
-    ('Alpha', 8, 12, 1.0),
-    ('Beta', 13, 25, 1.0),
-    ('Gamma', 30, 45, 1.0)
+    ('A', 4, 8, 1.0),
+    ('B', 8, 12, 1.0),
+    ('C',12, 16, 1.0),
+    ('D',16, 20, 1.0),
+    ('E',20, 24, 1.0),
+    ('F',24, 28, 1.0),
+    ('G',28, 32, 1.0)
 ]
 
+
 if path == "day":
-    path_b = [(PATHfile.edfpath(name, day, "1"), PATHfile.eventpath(name, day, "1")),
-        (PATHfile.edfpath(name, day, "2"), PATHfile.eventpath(name, day, "2"))]
+    path_b = [(PATHfile.edfpath(name, day, "2"), PATHfile.eventpath(name, day, "2")),
+        (PATHfile.edfpath(name, day, "3"), PATHfile.eventpath(name, day, "3"))]
         #(PATHfile.edfpath(name, day, "3"), PATHfile.eventpath(name, day, "3"))]
 elif path == "trial":
     path_b = [(PATHfile.edfpath(name, day, trial), PATHfile.eventpath(name, day, trial))]
 
+"""
 time_map = [
     (0., 1., task_num*0),
     (0.25, 1.25, task_num*0),
     (3., 4., task_num*1),
     (3.25, 4.25, task_num*1)
     ]
+    """
 
 """
 time_map = [
@@ -83,6 +89,20 @@ time_map = [
     (4., 5., task_num*16)
     ]
 """
+
+
+time_map = [
+    (0., 1., task_num*0),
+    (0.5, 1.5, task_num*1),
+    (1., 2., task_num*2),
+    (1.5, 2.5, task_num*3),
+    (2., 3., task_num*4),
+    (2.5, 3.5, task_num*5),
+    (3., 4., task_num*6),
+    (3.5, 4.5, task_num*7),
+    (4., 5., task_num*8)
+    ]
+
 """
 time_map = [
     (0., 1., task_num*0),
@@ -147,7 +167,6 @@ for band, fmin, fmax, mag in iter_freqs:
         labels = epochs.events[:, -1] + time_id
         epochs_train = epochs.copy().crop(tmin=lmin, tmax=mmin)
         epochs_data_train = epochs_train.get_data()
-        print(epochs_data_train.shape)
         large_x = np.vstack((large_x, epochs_data_train))
         l_labels = np.concatenate([l_labels, labels], 0)
     large_x = csp.fit_transform(large_x, l_labels)
@@ -166,7 +185,16 @@ for freq_name, fmin, fmax, acc in acc_map:
     print("{}({}~{}) Classification accuracy: {}" .format(freq_name, fmin, fmax, np.mean(acc)))
 
 print(data40)
-#svm.fit(data40, labels)
+
+from sklearn.datasets import load_boston
+from sklearn.feature_selection import SelectFromModel
+from sklearn.ensemble import RandomForestRegressor
+
+selector = SelectFromModel(RandomForestRegressor(n_estimators=100, random_state=42), threshold="median")
+selector.fit(data40, l_labels)
+data40 = selector.transform(data40)
+print(data40.shape)
+
 study = optuna.create_study(direction='maximize')
 study.optimize(objective, n_trials=100)
 svm = SVC(C=study.best_trial.params['C'], gamma = study.best_trial.params['gamma'], kernel='rbf', cache_size=100)
@@ -203,5 +231,5 @@ plt.savefig('figure/confusion_matrix_multi_{}_{}_{}.png' .format(name, day, tria
 plt.show()
 
 svm.fit(data40, l_labels)
-pickle_map = [csp_map, svm, vec_map, sca_map, iter_freqs]
+pickle_map = [csp_map, svm, vec_map, sca_map, iter_freqs, selector]
 pickle_make.maker("csp_map.pickle", pickle_map)

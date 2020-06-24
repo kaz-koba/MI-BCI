@@ -20,6 +20,7 @@ svm = pickle_map[1]
 vec_map = pickle_map[2]
 sca_map = pickle_map[3]
 iter_freqs = pickle_map[4]
+selector = pickle_map[5]
 
 stim = 0
 
@@ -58,7 +59,7 @@ def signal_print():
                 x *= mag
                 data = np.hstack((data, x))
                 i += 1
-
+            data = selector.transform(data)
             output = svm.predict(data)
             if n_id != 0:
                 count[n_id-1] += 1

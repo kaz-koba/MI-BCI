@@ -19,6 +19,7 @@ svm = pickle_map[1]
 vec_map = pickle_map[2]
 sca_map = pickle_map[3]
 iter_freqs = pickle_map[4]
+selector = pickle_map[5]
 
 stim = 0
 inifile = configparser.ConfigParser()
@@ -49,11 +50,12 @@ def signal_print():
     count = [0]*3
     Truecount = [0]*3
     while True:
+        #If it's in real time, no need.
         if stim == 0:
             inlet1.pull_sample()
         else:
             d, _ = inlet1.pull_chunk(timeout=1. ,max_samples=512)
-            n_id = stim
+            n_id = stim #If it's in real time, no need.
             data = np.empty((1,0))
             i=0
             d = np.array(d).T
@@ -72,11 +74,16 @@ def signal_print():
                 data = np.hstack((data, x))
                 i += 1
 
+            data = selector.transform(data)
             output = svm.predict(data)
             output = fix_labels(output[0], task_num)
-            client.send_message("/output", output)
+
+            #If it's in real time, no need.
             if n_id != 0:
+                client.send_message("/output", output)
                 count[n_id-1] += 1
+            else:
+                client.send_message("/output", 0)
             if output == n_id:
                 Truecount[n_id-1] += 1
             if count[0] != 0:
@@ -85,9 +92,10 @@ def signal_print():
                 print("r_acc: {}%" .format(Truecount[1]/count[1]*100))
             if count[2] != 0:
                 print("a_acc: {}%" .format(Truecount[2]/count[2]*100))
+            print(output)
             
         
-        
+#If it's in real time, no need.
 def check_stim():
     global stim
     while True:
