@@ -14,6 +14,7 @@ signal.signal(signal.SIGINT, signal.SIG_DFL)
 import pickle
 with open('csp_map.pickle', mode='rb') as fp:
     pickle_map = pickle.load(fp)
+    
 csp_map = pickle_map[0]
 svm = pickle_map[1]
 vec_map = pickle_map[2]

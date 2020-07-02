@@ -19,7 +19,7 @@ svm = pickle_map[1]
 vec_map = pickle_map[2]
 sca_map = pickle_map[3]
 iter_freqs = pickle_map[4]
-selector = pickle_map[5]
+#selector = pickle_map[5]
 
 stim = 0
 inifile = configparser.ConfigParser()
@@ -74,7 +74,7 @@ def signal_print():
                 data = np.hstack((data, x))
                 i += 1
 
-            data = selector.transform(data)
+            #data = selector.transform(data)
             output = svm.predict(data)
             output = fix_labels(output[0], task_num)
 

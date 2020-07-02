@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import optuna
+import sys
 
 from sklearn.svm import SVC
 from sklearn.model_selection import ShuffleSplit, cross_val_score, StratifiedKFold
@@ -19,7 +20,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 from pathfile import PATHfile
-from epoch_raw import Epoch_raw
+from epoch_raw import Epoch_raw, Setting_file
 import pickle_make
 
 def objective(trial):
@@ -36,15 +37,7 @@ def objective(trial):
 
 # set epoching parameters
 tmin, tmax =-1., 4.
-inifile = configparser.ConfigParser()
-inifile.read('./parameter.ini', 'UTF-8')
-
-day = inifile.get('setting', 'day')
-name = inifile.get('setting', 'name')
-trial = inifile.get('setting', 'trial')
-task_num = inifile.get('setting', 'task_num')
-path = inifile.get('setting', 'path')
-
+day, name, trial, task_num, path, C, gamma, n_components, time = Setting_file(time_t=False).set_file()
 
 if path == "day":
     path_b = [(PATHfile.edfpath(name, day, "1"), PATHfile.eventpath(name, day, "1")),
@@ -53,14 +46,17 @@ if path == "day":
 elif path == "trial":
     path_b = [(PATHfile.edfpath(name, day, trial), PATHfile.eventpath(name, day, trial))]
 
-if task_num == "2":
+if task_num == 2:
     event_id = dict(Left=1, Right=2)  # map event IDs to tasks
     target_names = ['left', 'right']
     data40 = np.empty((len(path_b)*40,0))
-elif task_num == "3":
+elif task_num == 3:
     event_id = dict(Left=1, Right=2, Another=3)
     target_names = ['left', 'right', 'Another']
     data40 = np.empty((len(path_b)*60,0))
+else:
+    print('Error: Please task_num is 2 or 3', file=sys.stderr)
+    sys.exit(1)  
 
 
 #frequency bands
@@ -75,8 +71,7 @@ iter_freqs = [
 ]
 
 #parameters
-svm = SVC(C=float(inifile.get('setting', 'C')), gamma = float(inifile.get('setting', 'gamma')), kernel='rbf', 
-        cache_size=100)
+svm = SVC(C=C, gamma = gamma, kernel='rbf', cache_size=100)
 cv = ShuffleSplit(10, test_size=0.2, random_state=42)
 
 # set epoching parameters
@@ -90,7 +85,7 @@ for band, fmin, fmax, mag in iter_freqs:
     epochs = []
     scaler = preprocessing.StandardScaler()
     vectorizer = Vectorizer()
-    csp = CSP(n_components = int(inifile.get('setting', 'n_components')), reg=None, log=True, 
+    csp = CSP(n_components = n_components, reg=None, log=True, 
             norm_trace=False, transform_into='average_power')
     # (re)load the data to save memory
     for path, event in path_b:

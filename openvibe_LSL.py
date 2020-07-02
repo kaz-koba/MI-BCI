@@ -61,6 +61,7 @@ def signal_print():
                 i += 1
             data = selector.transform(data)
             output = svm.predict(data)
+            print(output)
             if n_id != 0:
                 count[n_id-1] += 1
             if output == n_id:

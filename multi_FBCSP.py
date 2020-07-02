@@ -20,8 +20,9 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 from pathfile import PATHfile
-from epoch_raw import Epoch_raw
+from epoch_raw import Epoch_raw, Setting_file
 import pickle_make
+import time_map
 
 def fix_labels(i, task_num):
     id = 1
@@ -47,15 +48,17 @@ def objective(trial):
 
 # set epoching parameters
 tmin, tmax =-1., 5.
-inifile = configparser.ConfigParser()
-inifile.read('./parameter.ini', 'UTF-8')
+day, name, trial, task_num, path, C, gamma, n_components, time = Setting_file().set_file()
 
-day = inifile.get('setting', 'day')
-name = inifile.get('setting', 'name')
-trial = inifile.get('setting', 'trial')
-task_num = int(inifile.get('setting', 'task_num'))
-path = inifile.get('setting', 'path')
 
+iter_freqs = [
+    ('A', 4, 7, 1.0),
+    ('B', 8, 12, 1.0),
+    ('C',13, 25, 1.0),
+    ('D',30, 45, 1.0)
+]
+
+"""
 iter_freqs = [
     ('A', 4, 8, 1.0),
     ('B', 8, 12, 1.0),
@@ -63,68 +66,22 @@ iter_freqs = [
     ('D',16, 20, 1.0),
     ('E',20, 24, 1.0),
     ('F',24, 28, 1.0),
-    ('G',28, 32, 1.0)
+    ('G',28, 32, 1.0),
+    ('H',32, 36, 1.0),
+    ('I',36, 40, 1.0),
+    ('J',40, 44, 1.0),
 ]
-
+"""
 
 if path == "day":
-    path_b = [(PATHfile.edfpath(name, day, "2"), PATHfile.eventpath(name, day, "2")),
-        (PATHfile.edfpath(name, day, "3"), PATHfile.eventpath(name, day, "3"))]
+    path_b = [(PATHfile.edfpath(name, day, "1"), PATHfile.eventpath(name, day, "1")),
+        (PATHfile.edfpath(name, day, "2"), PATHfile.eventpath(name, day, "2"))]
         #(PATHfile.edfpath(name, day, "3"), PATHfile.eventpath(name, day, "3"))]
 elif path == "trial":
     path_b = [(PATHfile.edfpath(name, day, trial), PATHfile.eventpath(name, day, trial))]
 
-"""
-time_map = [
-    (0., 1., task_num*0),
-    (0.25, 1.25, task_num*0),
-    (3., 4., task_num*1),
-    (3.25, 4.25, task_num*1)
-    ]
-    """
 
-"""
-time_map = [
-    (0., 1., task_num*0),
-    (4., 5., task_num*16)
-    ]
-"""
-
-
-time_map = [
-    (0., 1., task_num*0),
-    (0.5, 1.5, task_num*1),
-    (1., 2., task_num*2),
-    (1.5, 2.5, task_num*3),
-    (2., 3., task_num*4),
-    (2.5, 3.5, task_num*5),
-    (3., 4., task_num*6),
-    (3.5, 4.5, task_num*7),
-    (4., 5., task_num*8)
-    ]
-
-"""
-time_map = [
-    (0., 1., task_num*0),
-    (0.25, 1.25, task_num*1),
-    (0.5, 1.5, task_num*2),
-    (0.75, 1.75, task_num*3),
-    (1., 2., task_num*4),
-    (1.25, 2.25, task_num*5),
-    (1.5, 2.5, task_num*6),
-    (1.75, 2.75, task_num*7),
-    (2., 3., task_num*8),
-    (2.25, 3.25, task_num*9),
-    (2.5, 3.5, task_num*10),
-    (2.75, 3.75, task_num*11),
-    (3., 4., task_num*12),
-    (3.25, 4.25, task_num*13),
-    (3.5, 4.5, task_num*14),
-    (3.75, 4.75, task_num*15),
-    (4., 5., task_num*16)
-    ]
-"""
-
+time_map = time_map.mapping_time(time, task_num)
 
 if task_num == 2:
     event_id = dict(Left=1, Right=2) # map event IDs to tasks
@@ -138,7 +95,7 @@ elif task_num == 3:
 
 
 #parameters
-svm = SVC(C=float(inifile.get('setting', 'C')), gamma = float(inifile.get('setting', 'gamma')), kernel='rbf', cache_size=100)
+svm = SVC(C=C, gamma = gamma, kernel='rbf', cache_size=100)
 cv = ShuffleSplit(10, test_size=0.2, random_state=42)
 
 # set epoching parameters
@@ -153,7 +110,7 @@ for band, fmin, fmax, mag in iter_freqs:
     epochs = []
     scaler = preprocessing.StandardScaler()
     vectorizer = Vectorizer()
-    csp = CSP(n_components = int(inifile.get('setting', 'n_components')), reg=None, log=True, norm_trace=False, transform_into='average_power')
+    csp = CSP(n_components = n_components, reg=None, log=True, norm_trace=False, transform_into='average_power')
     # (re)load the data to save memory
     for path, event in path_b:
         raw = read_raw_edf(path, stim_channel=False, preload=True)
@@ -185,7 +142,9 @@ for freq_name, fmin, fmax, acc in acc_map:
     print("{}({}~{}) Classification accuracy: {}" .format(freq_name, fmin, fmax, np.mean(acc)))
 
 print(data40)
+print(time_map)
 
+"""
 from sklearn.datasets import load_boston
 from sklearn.feature_selection import SelectFromModel
 from sklearn.ensemble import RandomForestRegressor
@@ -194,6 +153,7 @@ selector = SelectFromModel(RandomForestRegressor(n_estimators=100, random_state=
 selector.fit(data40, l_labels)
 data40 = selector.transform(data40)
 print(data40.shape)
+"""
 
 study = optuna.create_study(direction='maximize')
 study.optimize(objective, n_trials=100)
@@ -212,6 +172,7 @@ for train, test in cv.split(data40, l_labels):
     preds[test] = svm.predict(data40[test])
 
 preds = [fix_labels(i, task_num) for i in preds]
+mae_labels = l_labels
 l_labels = [fix_labels(i, task_num) for i in l_labels]
 
 
@@ -230,6 +191,6 @@ else:
 plt.savefig('figure/confusion_matrix_multi_{}_{}_{}.png' .format(name, day, trial_name))
 plt.show()
 
-svm.fit(data40, l_labels)
-pickle_map = [csp_map, svm, vec_map, sca_map, iter_freqs, selector]
+svm.fit(data40, mae_labels)
+pickle_map = [csp_map, svm, vec_map, sca_map, iter_freqs]#, selector]
 pickle_make.maker("csp_map.pickle", pickle_map)
