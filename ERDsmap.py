@@ -10,17 +10,10 @@ from mne.stats import permutation_cluster_1samp_test as pcluster_test
 from mne.viz.utils import center_cmap
 
 from pathfile import PATHfile
-from epoch_raw import Epoch_raw
+from epoch_raw import Epoch_raw, Setting_file
 
 # load and preprocess data ####################################################
-inifile = configparser.ConfigParser()
-inifile.read('./parameter.ini', 'UTF-8')
-
-day = inifile.get('setting', 'day')
-name = inifile.get('setting', 'name')
-trial = inifile.get('setting', 'trial')
-path = inifile.get('setting', 'path')
-task_num = inifile.get('setting', 'task_num')
+day, name, trial, task_num, path, C, gamma, n_components, time = Setting_file().set_file()
 
 if path == "day":
     path_b = [(PATHfile.edfpath(name, day, "1"), PATHfile.eventpath(name, day, "1")),
@@ -32,9 +25,9 @@ elif path == "trial":
 
 tmin, tmax = -2, 4  # define epochs around events (in s)
 
-if task_num == "2":
+if task_num == 2:
     event_id = dict(Left=1, Right=2)  # map event IDs to tasks
-elif task_num == "3":
+elif task_num == 3:
     event_id = dict(Left=1, Right=2, Another=3)
 
 epochs = []

@@ -6,24 +6,18 @@ import matplotlib.pyplot as plt
 
 import mne
 from mne import concatenate_epochs
+from mne.io import read_raw_edf
 from mne.datasets import sample
 from mne.stats import bonferroni_correction, fdr_correction
 
 from pathfile import PATHfile
-from epoch_raw import Epoch_raw
+from epoch_raw import Epoch_raw, Setting_file
 
 print(__doc__)
 
 tmin, tmax =-1., 4.
 event_id = [1] #1-left 2-right 3-another
-inifile = configparser.ConfigParser()
-inifile.read('./parameter.ini', 'UTF-8')
-
-day = inifile.get('setting', 'day')
-name = inifile.get('setting', 'name')
-trial = inifile.get('setting', 'trial')
-task_num = inifile.get('setting', 'task_num')
-path = inifile.get('setting', 'path')
+day, name, trial, task_num, path, C, gamma, n_components, time = Setting_file().set_file()
 
 if path == "day":
     path_b = [(PATHfile.edfpath(name, day, "1"), PATHfile.eventpath(name, day, "1")),
@@ -37,8 +31,11 @@ channel = 'C3'
 include = [channel]
 
 epochs = []
+
 for path, event in path_b:
-    epochs.append(Epoch_raw.Epochs_raw(path, event, event_id, tmin = tmin, tmax = tmax, channel_names=include))    
+    raw = read_raw_edf(path, stim_channel=False, preload=True)
+    picks = mne.pick_types(raw.info, meg=False, eeg=True, include=include, exclude='bads')
+    epochs.append(Epoch_raw.Epochs_raw(raw, event, event_id, tmin = tmin, tmax = tmax, picks=picks))    
 
 epochs = concatenate_epochs(epochs)
 

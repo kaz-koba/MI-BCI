@@ -45,8 +45,8 @@ def fix_labels(i, task_num):
         id += 1
 
 def signal_print():
-    count = [0]*3
-    Truecount = [0]*3
+    count_right = 0
+    count_left = 0
     while True:
         d, _ = inlet1.pull_chunk(timeout=1. ,max_samples=512)
         data = np.empty((1,0))
@@ -71,6 +71,13 @@ def signal_print():
         output = fix_labels(output[0], task_num)
         print(output)
         client.send_message("/output", output)
+        if output==1:
+            count_right += 1
+        elif output==2:
+            count_left += 1
+        
+        print("rightMI:" + str(count_right/(count_left+count_right)))
+        print("leftMI:" + str(count_left/(count_left+count_right)))
             
 
 if __name__ == "__main__":
