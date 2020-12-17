@@ -27,7 +27,7 @@ elif path == "trial":
     path_b = [(PATHfile.edfpath(name, day, trial), PATHfile.eventpath(name, day, trial))]
 
 #   Setup for reading the raw data
-channel = 'C3'
+channel = 'FC4'
 include = [channel]
 
 epochs = []

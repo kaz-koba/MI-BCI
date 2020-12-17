@@ -40,8 +40,8 @@ epochs = concatenate_epochs(epochs)
 # compute ERDS maps ###########################################################
 freqs = np.arange(5, 35, 1)  # frequencies from 2-35Hzs
 n_cycles = freqs  # use constant t/f resolution
-vmin, vmax = -0.5, 1.0  # set min and max ERDS values in plot
-baseline = [-2, -0.5]  # baseline interval (in s)
+vmin, vmax = -0.2, 0.5  # set min and max ERDS values in plot
+baseline = [-1, 0]  # baseline interval (in s)
 cmap = center_cmap(plt.cm.RdBu, vmin, vmax)  # zero maps to white
 kwargs = dict(n_permutations=100, step_down_p=0.05, seed=1,
                 buffer_size=None)  # for cluster test

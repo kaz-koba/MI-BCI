@@ -5,59 +5,59 @@ import sys
 
 import mne
 from mne import concatenate_epochs
+from mne.io import read_raw_edf
 from mne.stats import permutation_cluster_test
 from mne.datasets import sample
 
 from pathfile import PATHfile
-from epoch_raw import Epoch_raw
+from epoch_raw import Epoch_raw, Setting_file
 
 if __name__ == "__main__":
     # set epoching parameters
     tmin, tmax =-1., 4.
-    fmin, fmax = 1, 45
-    event_id = [1, 2, 3]
-    inifile = configparser.ConfigParser()
-    inifile.read('./parameter.ini', 'UTF-8')
+    fmin, fmax = 4, 45
+    event_id = [1, 2]
+    day, name, trial, task_num, path, C, gamma, n_components, time = Setting_file().set_file()
 
-    day = inifile.get('setting', 'day')
-    name = inifile.get('setting', 'name')
-    trial = inifile.get('setting', 'trial')
-
-    path_b = [(PATHfile.edfpath(name, day, trial), PATHfile.eventpath(name, day, trial))]
+    if path == "day":
+        path_b = [(PATHfile.edfpath(name, day, "1"), PATHfile.eventpath(name, day, "1")),
+                (PATHfile.edfpath(name, day, "2"), PATHfile.eventpath(name, day, "2")),
+            (PATHfile.edfpath(name, day, "3"), PATHfile.eventpath(name, day, "3"))]
+    elif path == "trial":
+        path_b = [(PATHfile.edfpath(name, day, trial), PATHfile.eventpath(name, day, trial))]
 
 
     #   Setup for reading the raw data
     channel = 'FC3'
     include = [channel]
-
     epochs1 = []
     event_id = 1
     for path, event in path_b:
-        epochs1.append(Epoch_raw.Epochs_raw(path, event, event_id, fmin, fmax, tmin, tmax, include))    
+        event = pd.read_csv(event, header=None)
+        events = event.values
+        raw = read_raw_edf(path, stim_channel=False, preload=True)
+        picks = mne.pick_channels(raw.info["ch_names"], include)
+        epochs1.append(mne.Epochs(raw, events, event_id, tmin, tmax, picks=picks,baseline=(None, 0)))
     epochs1 = concatenate_epochs(epochs1)
     condition1 = epochs1.get_data()  # as 3D matrix
     print(condition1.shape)
     condition1 = condition1[:, 0, :]  # take only one channel to get a 2D array
+    print(condition1.shape)
     mean1 = condition1.mean(axis=0)
+    print(mean1.shape)
 
     epochs2 = []
     event_id = 2
     for path, event in path_b:
-        epochs2.append(Epoch_raw.Epochs_raw(path, event, event_id, fmin, fmax, tmin, tmax, include))    
+        event = pd.read_csv(event, header=None)
+        events = event.values
+        raw = read_raw_edf(path, stim_channel=False, preload=True)
+        picks = mne.pick_channels(raw.info["ch_names"], include)
+        epochs2.append(mne.Epochs(raw, events, event_id, tmin, tmax, picks=picks,baseline=(None, 0)))
     epochs2 = concatenate_epochs(epochs2)
     condition2 = epochs2.get_data()  # as 3D matrix
     condition2 = condition2[:, 0, :]  # take only one channel to get a 2D array
     mean2 = condition2.mean(axis=0)
-    """
-    epochs3 = []
-    event_id = 3
-    for path, event in path_b:
-        epochs3.append(epoch_raw(path, event, event_id))    
-    epochs3 = concatenate_epochs(epochs3)
-    condition3 = epochs3.get_data()  # as 3D matrix
-    condition3 = condition3[:, 0, :]  # take only one channel to get a 2D array
-    mean3 = condition3.mean(axis=0)
-    """
 
     threshold = 6.0
     T_obs, clusters, cluster_p_values, H0 = \
@@ -68,19 +68,20 @@ if __name__ == "__main__":
 
 
     plt.close('all')
+    """
     plt.subplot(211)
-    plt.ylim(-30, 30)
     plt.title('Channel : ' + channel)
     plt.plot(times, mean1 - mean2,
-            label="ERF Contrast (Event 1 - Event 2)")
-    plt.ylabel("MEG (T / m)")
+            label="ERP Contrast (Event 1 - Event 2)")
+    plt.ylabel("Hz")
     plt.legend()
     plt.subplot(212)
+    """
     h = []
     count = 0
     for i_c, c in enumerate(clusters):
         c = c[0]
-        if cluster_p_values[i_c] <= 0.05:
+        if cluster_p_values[i_c] <= 0.10:
             h = plt.axvspan(times[c.start], times[c.stop - 1],
                             color='r', alpha=0.3)
             count+=1
@@ -91,7 +92,9 @@ if __name__ == "__main__":
     plt.legend((h, ), ('cluster p-value < 0.05', ))
     plt.xlabel("time (ms)")
     plt.ylabel("f-values")
-    plt.show()
-    pltpath = 'figure/' + day + '-' + name + '.png'
+    if path == 'day':
+        pltpath = 'figure/' + day + '-' + name + '-' + channel + '.png'
+    else:
+        pltpath = 'figure/' + day + '-' + name + '-' + trial + '-' + channel + '.png'
     plt.savefig(pltpath)
-
+    plt.show()
