@@ -28,7 +28,7 @@ if __name__ == "__main__":
 
 
     #   Setup for reading the raw data
-    channel = 'FC3'
+    channel = 'C5'
     include = [channel]
     epochs1 = []
     event_id = 1
@@ -81,7 +81,7 @@ if __name__ == "__main__":
     count = 0
     for i_c, c in enumerate(clusters):
         c = c[0]
-        if cluster_p_values[i_c] <= 0.10:
+        if cluster_p_values[i_c] <= 0.05:
             h = plt.axvspan(times[c.start], times[c.stop - 1],
                             color='r', alpha=0.3)
             count+=1
